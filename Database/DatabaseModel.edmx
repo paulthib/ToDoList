@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="ToDoListModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="ToDoList">
+          <Key>
+            <PropertyRef Name="ToDoListID" />
+          </Key>
+          <Property Name="ToDoListID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ToDoListName" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ToDoTask">
+          <Key>
+            <PropertyRef Name="ToDoTaskID" />
+          </Key>
+          <Property Name="ToDoTaskID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ToDoListID" Type="int" Nullable="false" />
+          <Property Name="ToDoTaskName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="SortOrder" Type="int" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_ToDoTask_ToDoList">
+          <End Role="ToDoList" Type="Self.ToDoList" Multiplicity="1" />
+          <End Role="ToDoTask" Type="Self.ToDoTask" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ToDoList">
+              <PropertyRef Name="ToDoListID" />
+            </Principal>
+            <Dependent Role="ToDoTask">
+              <PropertyRef Name="ToDoListID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="ToDoListModelStoreContainer">
+          <EntitySet Name="ToDoList" EntityType="Self.ToDoList" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ToDoTask" EntityType="Self.ToDoTask" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_ToDoTask_ToDoList" Association="Self.FK_ToDoTask_ToDoList">
+            <End Role="ToDoList" EntitySet="ToDoList" />
+            <End Role="ToDoTask" EntitySet="ToDoTask" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="ToDoListModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="ToDoListEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="ToDoLists" EntityType="ToDoListModel.ToDoList" />
+          <EntitySet Name="ToDoTasks" EntityType="ToDoListModel.ToDoTask" />
+          <AssociationSet Name="FK_ToDoTask_ToDoList" Association="ToDoListModel.FK_ToDoTask_ToDoList">
+            <End Role="ToDoList" EntitySet="ToDoLists" />
+            <End Role="ToDoTask" EntitySet="ToDoTasks" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="ToDoList">
+          <Key>
+            <PropertyRef Name="ToDoListID" />
+          </Key>
+          <Property Name="ToDoListID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ToDoListName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="ToDoTasks" Relationship="ToDoListModel.FK_ToDoTask_ToDoList" FromRole="ToDoList" ToRole="ToDoTask" />
+        </EntityType>
+        <EntityType Name="ToDoTask">
+          <Key>
+            <PropertyRef Name="ToDoTaskID" />
+          </Key>
+          <Property Name="ToDoTaskID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ToDoListID" Type="Int32" Nullable="false" />
+          <Property Name="ToDoTaskName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="SortOrder" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="ToDoList" Relationship="ToDoListModel.FK_ToDoTask_ToDoList" FromRole="ToDoTask" ToRole="ToDoList" />
+        </EntityType>
+        <Association Name="FK_ToDoTask_ToDoList">
+          <End Type="ToDoListModel.ToDoList" Role="ToDoList" Multiplicity="1" />
+          <End Type="ToDoListModel.ToDoTask" Role="ToDoTask" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ToDoList">
+              <PropertyRef Name="ToDoListID" />
+            </Principal>
+            <Dependent Role="ToDoTask">
+              <PropertyRef Name="ToDoListID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="ToDoListModelStoreContainer" CdmEntityContainer="ToDoListEntities">
+          <EntitySetMapping Name="ToDoLists">
+            <EntityTypeMapping TypeName="ToDoListModel.ToDoList">
+              <MappingFragment StoreEntitySet="ToDoList">
+                <ScalarProperty Name="ToDoListName" ColumnName="ToDoListName" />
+                <ScalarProperty Name="ToDoListID" ColumnName="ToDoListID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ToDoTasks">
+            <EntityTypeMapping TypeName="ToDoListModel.ToDoTask">
+              <MappingFragment StoreEntitySet="ToDoTask">
+                <ScalarProperty Name="SortOrder" ColumnName="SortOrder" />
+                <ScalarProperty Name="ToDoTaskName" ColumnName="ToDoTaskName" />
+                <ScalarProperty Name="ToDoListID" ColumnName="ToDoListID" />
+                <ScalarProperty Name="ToDoTaskID" ColumnName="ToDoTaskID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

@@ -1,31 +1,165 @@
 ﻿@{
     ViewBag.Title = "Home Page";
 }
+<style>
+    #content label {
+        width: 150px;
+    }
+
+    input {
+          width: 98%;
+          padding: 1%;
+        }
+
+    .error {
+        color: red;
+    }
+
+    .color-default {
+        color: #000;
+    }
+
+    .color-red {
+        color: red;
+    }
+
+    .color-green {
+        color: green;
+    }
+
+    #content input.ng-dirty.ng-invalid {
+        border: 1px solid red;
+        background-color: rgb(255, 244, 244);
+    }
+</style>
 
 <div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="http://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+    <h1>To Do List</h1>
 </div>
 
-<div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>
-            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-            enables a clean separation of concerns and gives you full control over markup
-            for enjoyable, agile development.
-        </p>
-        <p><a class="btn btn-default" href="http://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
+<div ng-app="myApp">
+    <div id="content" ng-controller="TaskController">
+        <form ng-submit="submitForm()" name="frmTask">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-2">
+                        <div>
+                            <label for="task">Task Name</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                            <input type="text" ng-model="task.TaskName" name="cname" placeholder="Enter your name" required ng-minlength="5" ng-maxlength="50" />
+                    </div>
+                    <div class="col-md-4">
+                        <div>
+                            <span class="error" ng-show="(frmTask.$dirty||submitted) && frmTask.cname.$error.required">Task name is Required</span>
+                            <span class="error" ng-show="frmTask.$dirty && frmTask.cname.$error.minlength">Minimum length required is 5</span>
+                            <span class="error" ng-show="frmTask.$dirty && frmTask.cname.$error.maxlength">Maximum length is 50</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <div>
+                            <label for="int">SortOrder</label>
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <div>
+                            <input type="text" ng-model="task.SortOrder" name="sortorder" placeholder="Enter sort order" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <div>
+                            <input type="submit" value="Add Task" ng-disabled="frmTask.$invalid">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <br />
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Task Id</th>
+                    <th>Task Name</th>
+                    <th> </th>
+                </tr>
+            </thead>
+            <tr ng-repeat="x in products">
+                <td>{{x.TaskId}}</td>
+                <td>{{x.TaskName}}</td>
+                <td><button ng-click="deleteRecord(x.TaskId);">Delete</button></td>
+            </tr>
+        </table>
     </div>
-    <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="http://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="http://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
-    </div>
+
 </div>
+
+@section scripts{
+    <script src="~/Scripts/jquery-3.1.1.min.js"></script>
+    <script src="~/Scripts/angular.min.js"></script>
+    <script src="~/Scripts/angular-route.min.js"></script>
+    <script>
+        var app = angular.module('myApp', []);
+
+        app.controller('TaskController', function ($scope, $http, $location, $window) {
+                $scope.task = {};
+                $scope.message = '';
+                $scope.result = "color-default";
+                $scope.isViewLoading = false;
+
+                $http.get('/Home/GetData/').then(function (response) {
+                    $scope.products = response.data;
+                });
+
+                $scope.deleteRecord = function (id) {
+                    console.log(id);
+                    var fields = $scope.fields;
+                    var url = "/Home/DeleteRecord/" + id;
+                    $http.get(url)
+                      .then(function (response) {
+                          $scope.products = response.data;
+                      });
+                };
+
+                //get called when user submits the form
+                $scope.submitForm = function () {
+                    $scope.isViewLoading = true;
+                    console.log('Form is submitted with:', $scope.task);
+
+                    //$http service that send or receive data from the remote server
+                    $http({
+                        method: 'POST',
+                        url: '/Home/CreateTask',
+                        data: $scope.task
+                    }).then(function (response) {
+                        $scope.status = response.status;
+                        $scope.data = response.data;
+                        $scope.errors = [];
+                        if ($scope.status === 200) {
+                            $scope.task = {};
+                            $scope.message = 'Form data Submitted!';
+                            $scope.result = "color-green";
+                            $scope.products = response.data;
+                        }
+                        else {
+                            $scope.errors = data.errors;
+                        }
+                    },function (data, status, headers, config) {
+                        $scope.errors = [];
+                        $scope.message = 'Unexpected Error while saving data!!';
+                    });
+                    $scope.isViewLoading = false;
+                }
+            })
+            .config(function ($locationProvider) {
+
+                //default = 'false'
+                $locationProvider.html5Mode(true);
+            });
+
+    </script>
+}
