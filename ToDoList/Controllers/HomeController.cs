@@ -9,13 +9,18 @@ using ToDoList.Models;
 
 namespace ToDoList.Controllers
 {
-    //TODO - use IOC constiner for dependency injection
     public class HomeController : Controller
     {
+        //use autofac for dependency injection
+        private ITaskListManager _taskListManager;
+        public HomeController(ITaskListManager taskListManager)
+        {
+            _taskListManager = taskListManager;
+        }
+
         public ActionResult Index()
         {
-            ITaskListManager taskListManager = new TaskListManager();
-            var data = taskListManager.GetAll();
+            var data = _taskListManager.GetAll();
 
             return View();
         }
@@ -23,8 +28,7 @@ namespace ToDoList.Controllers
         [HttpGet]
         public JsonResult GetData(int number = 10)
         {
-            ITaskListManager taskListManager = new TaskListManager();
-            var data = taskListManager.GetAll().OrderBy(t => t.SortOrder);
+            var data = _taskListManager.GetAll().OrderBy(t => t.SortOrder);
 
             return Json(data, JsonRequestBehavior.AllowGet);
         }
@@ -32,8 +36,7 @@ namespace ToDoList.Controllers
         [HttpGet]
         public ActionResult EditTask(int? id)
         {
-            ITaskListManager taskListManager = new TaskListManager();
-            var model = taskListManager.Get(id.Value);
+            var model = _taskListManager.Get(id.Value);
 
             return PartialView(model);
         }
@@ -41,8 +44,7 @@ namespace ToDoList.Controllers
         [HttpPost]
         public JsonResult EditTask(ToDoTask model)
         {
-            ITaskListManager taskListManager = new TaskListManager();
-            var updatedModel = taskListManager.Update(model);
+            var updatedModel = _taskListManager.Update(model);
 
             return Json(new
             {
@@ -73,16 +75,15 @@ namespace ToDoList.Controllers
                 });
             }
 
-            ITaskListManager taskListManager = new TaskListManager();
             ToDoTask task = new ToDoTask()
             {
                 ToDoListID = 1,
                 ToDoTaskName = model.TaskName,
                 SortOrder = model.SortOrder
             };
-            var newTask = taskListManager.Add(task);
+            var newTask = _taskListManager.Add(task);
 
-            var data = taskListManager.GetAll();
+            var data = _taskListManager.GetAll();
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
@@ -90,9 +91,8 @@ namespace ToDoList.Controllers
         {
             ViewBag.Message = "Your application description page.";
 
-            ITaskListManager taskListManager = new TaskListManager();
-            taskListManager.Remove(id);
-            var data = taskListManager.GetAll();
+            _taskListManager.Remove(id);
+            var data = _taskListManager.GetAll();
 
             return Json(data, JsonRequestBehavior.AllowGet);
         }

@@ -99,7 +99,7 @@
                 <td>{{x.TaskId}}</td>
                 <td>{{x.TaskName}}</td>
                 <td><button class='edit-task' data-id="{{x.TaskId}}">Edit</button></td>
-                <td><button ng-click="deleteRecord(x.TaskId);">Delete</button></td>
+                <td><a ng-click="deleteRecord(x.TaskId);" title="Delete"><span class="glyphicon glyphicon-trash"></span></a></td>
             </tr>
         </table>
          
