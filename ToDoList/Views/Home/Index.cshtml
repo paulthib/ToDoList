@@ -31,6 +31,12 @@
         border: 1px solid red;
         background-color: rgb(255, 244, 244);
     }
+
+    .fade.in {
+        opacity: 1;
+        background-color: #000;
+        }
+
 </style>
 
 <div class="jumbotron">
@@ -38,9 +44,9 @@
 </div>
 
 <div ng-app="myApp">
-    <div id="content" ng-controller="TaskController">
-        <form ng-submit="submitForm()" name="frmTask">
-            <div class="container">
+    <div id="TaskController" ng-controller="TaskController">
+        <div class="container">
+            <form ng-submit="submitForm()" name="frmTask">
                 <div class="row">
                     <div class="col-md-2">
                         <div>
@@ -48,7 +54,7 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                            <input type="text" ng-model="task.TaskName" name="cname" placeholder="Enter your name" required ng-minlength="5" ng-maxlength="50" />
+                        <input type="text" ng-model="task.TaskName" name="cname" placeholder="Enter your name" required ng-minlength="5" ng-maxlength="50" />
                     </div>
                     <div class="col-md-4">
                         <div>
@@ -77,31 +83,59 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </form>
-        <br />
+            </form>
+            <br />
+    <div id="content">
         <table class="table table-bordered">
             <thead>
                 <tr>
                     <th>Task Id</th>
                     <th>Task Name</th>
                     <th> </th>
+                    <th> </th>
                 </tr>
             </thead>
             <tr ng-repeat="x in products">
                 <td>{{x.TaskId}}</td>
                 <td>{{x.TaskName}}</td>
+                <td><button class='edit-task' data-id="{{x.TaskId}}">Edit</button></td>
                 <td><button ng-click="deleteRecord(x.TaskId);">Delete</button></td>
             </tr>
         </table>
+         
+    </div>
+        </div>
     </div>
 
 </div>
+
+<!-- modal-->
+<div id='editTaskModal' class='modal fade in' data-url='@Url.Action("EditTask")'>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+
+            </div>
+            <div class="modal-body">
+                <div id='modal-container'>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+
+            </div>
+        </div>
+    </div>   
+</div>
+
+
+
 
 @section scripts{
     <script src="~/Scripts/jquery-3.1.1.min.js"></script>
     <script src="~/Scripts/angular.min.js"></script>
     <script src="~/Scripts/angular-route.min.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
     <script>
         var app = angular.module('myApp', []);
 
@@ -114,6 +148,12 @@
                 $http.get('/Home/GetData/').then(function (response) {
                     $scope.products = response.data;
                 });
+
+                $scope.myfunction = function () {
+                    $http.get('/Home/GetData/').then(function (response) {
+                        $scope.products = response.data;
+                    });
+                }
 
                 $scope.deleteRecord = function (id) {
                     console.log(id);
@@ -161,5 +201,25 @@
                 $locationProvider.html5Mode(true);
             });
 
+        $(document).ready(function () {
+            $("div#content").on('click', 'button.edit-task', function (e) {
+                e.stopPropagation();  
+                var id = $(this).data("id");
+                console.log(id);
+                var url = $('#editTaskModal').data('url') + '/' + id;
+
+                $.get(url, function (data) {
+                    $('#modal-container').html(data);
+
+                    $('#editTaskModal').modal('show');
+                    return false;
+                });
+            });
+
+            $('#editTaskModal').on('hidden.bs.modal', function () {
+                angular.element('#TaskController').scope().myfunction();
+            });
+
+         });
     </script>
 }

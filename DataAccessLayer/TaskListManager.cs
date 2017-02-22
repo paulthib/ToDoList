@@ -31,8 +31,10 @@ namespace DataAccessLayer
         {
             using (var context = new ToDoListEntities())
             {
-                context.ToDoTasks.Add(task);
-                context.Entry(task).State = EntityState.Modified;
+                context.ToDoTasks.Attach(task);
+                var entry = context.Entry(task);
+                entry.State = EntityState.Modified;
+                entry.Property(e => e.ToDoListID).IsModified = false;
                 context.SaveChanges();
                 return task;
             }

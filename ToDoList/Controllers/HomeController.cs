@@ -24,10 +24,32 @@ namespace ToDoList.Controllers
         public JsonResult GetData(int number = 10)
         {
             ITaskListManager taskListManager = new TaskListManager();
-            var data = taskListManager.GetAll();
+            var data = taskListManager.GetAll().OrderBy(t => t.SortOrder);
 
             return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public ActionResult EditTask(int? id)
+        {
+            ITaskListManager taskListManager = new TaskListManager();
+            var model = taskListManager.Get(id.Value);
+
+            return PartialView(model);
+        }
+
+        [HttpPost]
+        public JsonResult EditTask(ToDoTask model)
+        {
+            ITaskListManager taskListManager = new TaskListManager();
+            var updatedModel = taskListManager.Update(model);
+
+            return Json(new
+            {
+                success = true
             }
+            , JsonRequestBehavior.AllowGet);
+        }
 
         public JsonResult Remove(int id)
         {
