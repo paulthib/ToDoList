@@ -33,44 +33,14 @@ namespace ToDoList.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet]
-        public ActionResult EditTask(int? id)
-        {
-            var model = _taskListManager.Get(id.Value);
-
-            return PartialView(model);
-        }
-
-        [HttpPost]
-        public JsonResult EditTask(ToDoTask model)
-        {
-            var updatedModel = _taskListManager.Update(model);
-
-            return Json(new
-            {
-                success = true
-            }
-            , JsonRequestBehavior.AllowGet);
-        }
-
-        public JsonResult Remove(int id)
-        {
-            ViewBag.Message = "Your application description page.";
-
-            return Json(new
-            {
-                success = true,
-                errors = ModelState.Keys.SelectMany(i => ModelState[i].Errors).Select(m => m.ErrorMessage)
-            }
-            ,JsonRequestBehavior.AllowGet);
-        }
-
         [HttpPost]
         public JsonResult CreateTask(TaskViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                return Json(new { success = false,
+                return Json(new
+                {
+                    success = false,
                     errors = ModelState.Keys.SelectMany(i => ModelState[i].Errors).Select(m => m.ErrorMessage)
                 });
             }
@@ -87,10 +57,37 @@ namespace ToDoList.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-        public JsonResult DeleteRecord(int id)
+        [HttpGet]
+        public ActionResult EditTask(int? id)
         {
-            ViewBag.Message = "Your application description page.";
+            var data = _taskListManager.Get(id.Value);
+            var model = new TaskViewModel()
+            {
+                TaskId = data.ToDoTaskID,
+                TaskName = data.ToDoTaskName,
+                SortOrder = data.SortOrder
+            };
+            return PartialView(model);
+        }
 
+        [HttpPost]
+        public JsonResult EditTask(TaskViewModel model)
+        {
+            ToDoTask task = new ToDoTask()
+            {
+                ToDoListID = 1,
+                ToDoTaskID = model.TaskId,
+                ToDoTaskName = model.TaskName,
+                SortOrder = model.SortOrder
+            };
+            var updatedTask = _taskListManager.Update(task);
+
+            return Json(new {success = true}, JsonRequestBehavior.AllowGet);
+        }
+
+
+        public JsonResult DeleteTask(int id)
+        {
             _taskListManager.Remove(id);
             var data = _taskListManager.GetAll();
 

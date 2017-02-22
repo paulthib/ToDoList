@@ -1,38 +1,6 @@
 ﻿@{
     ViewBag.Title = "Home Page";
 }
-<style>
-    #content label {
-        width: 150px;
-    }
-
-    input {
-          width: 98%;
-          padding: 1%;
-        }
-
-    .error {
-        color: red;
-    }
-
-    .color-default {
-        color: #000;
-    }
-
-    .color-red {
-        color: red;
-    }
-
-    .color-green {
-        color: green;
-    }
-
-    #content input.ng-dirty.ng-invalid {
-        border: 1px solid red;
-        background-color: rgb(255, 244, 244);
-    }
-
-</style>
 
 <div class="jumbotron">
     <h1>To Do List</h1>
@@ -49,7 +17,7 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <input type="text" ng-model="task.TaskName" name="cname" placeholder="Enter your name" required ng-minlength="5" ng-maxlength="50" />
+                        <input type="text" ng-model="task.TaskName" name="cname" placeholder="Enter task" required ng-minlength="5" ng-maxlength="50" />
                     </div>
                     <div class="col-md-4">
                         <div>
@@ -67,7 +35,7 @@
                     </div>
                     <div class="col-md-1">
                         <div>
-                            <input type="text" ng-model="task.SortOrder" name="sortorder" placeholder="Enter sort order" required />
+                            <input type="text" ng-model="task.SortOrder" name="sortorder" placeholder="Enter number" required />
                         </div>
                     </div>
                 </div>
@@ -127,11 +95,6 @@
 
 
 @section scripts{
-    <script src="~/Scripts/jquery-3.1.1.min.js"></script>
-    <script src="~/Scripts/angular.min.js"></script>
-    <script src="~/Scripts/angular-route.min.js"></script>
-    <script src="~/Scripts/bootstrap.js"></script>
-    <script src="~/Scripts/bootbox.min.js"></script>
     <script>
         var app = angular.module('myApp', []);
 
@@ -141,25 +104,24 @@
                 $scope.result = "color-default";
                 $scope.isViewLoading = false;
 
-                $http.get('/Home/GetData/').then(function (response) {
-                    $scope.products = response.data;
-                });
-
-                $scope.myfunction = function () {
+                $scope.GetData = function () {
                     $http.get('/Home/GetData/').then(function (response) {
                         $scope.products = response.data;
                     });
                 }
 
+                $scope.GetData();
+
+                //DELETE a task
                 $scope.deleteRecord = function (id) {
                     var confirmed = false;
-                    bootbox.confirm("Delete this record?",
+                    bootbox.confirm("Are you sure you wish to delete this record?",
                         function (result) {
                             if (!result) return;
 
                             // delete the selected record
                             var fields = $scope.fields;
-                            var url = "/Home/DeleteRecord/" + id;
+                            var url = "/Home/DeleteTask/" + id;
                             $http.get(url)
                               .then(function (response) {
                                   $scope.products = response.data;
@@ -167,6 +129,7 @@
                         });
                 };
 
+                //CREATE A NEW TASK
                 //get called when user submits the form
                 $scope.submitForm = function () {
                     $scope.isViewLoading = true;
@@ -198,12 +161,12 @@
                 }
             })
             .config(function ($locationProvider) {
-
                 //default = 'false'
                 $locationProvider.html5Mode(true);
             });
 
         $(document).ready(function () {
+            //modal to edit a task 
             $("div#content").on('click', 'button.edit-task', function (e) {
                 e.stopPropagation();  
                 var id = $(this).data("id");
@@ -218,18 +181,10 @@
             });
 
             $('#editTaskModal').on('hidden.bs.modal', function () {
-                angular.element('#TaskController').scope().myfunction();
+                angular.element('#TaskController').scope().GetData();
             });
 
         });
 
-        var confirmed = function(result)
-        {
-            if (result)
-            {
-                angular.element('#TaskController').scope().deleteRecord();
-
-            }
-        }
     </script>
 }

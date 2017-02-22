@@ -8,6 +8,8 @@ namespace ToDoList.Models
 {
     public class TaskViewModel
     {
+        public int TaskId { get; set; }
+
         [MaxLength(50)]
         public string TaskName { get; set; }
         public int SortOrder { get; set; }
